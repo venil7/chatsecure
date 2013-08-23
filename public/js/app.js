@@ -22,17 +22,32 @@ chatApp.factory('ioService', function() {
 /// dependencies: 
 ///  - encService - encoding service
 ///  - io - socket io;
-chatApp.factory('commService', function(encService, ioService) {
+chatApp.factory('commService', function(encService, ioService, $rootScope) {
+  var localScope = $rootScope.$new();
   var socket = ioService.connect();
-  return {
+
+  socket.on('join', function(person) {
+    localScope.$emit('join', person);
+  });
+
+  socket.on('msg', function(msg) {
+    localScope.$emit('msg', msg);
+  });
+
+  var _service = {
     send: function(msg) {
-      console.log('message sent:' + msg);
+      // var msg = {name:name, text:text};
+      socket.emit('msg', msg);
+      // console.log('message sent:' + msg);
     },
     login: function(name) {
       socket.emit('join', {name:name});
-      console.log('logged in as:' + name);
+      // console.log('logged in as:' + name);
+      return localScope;
     }
   };
+
+  return _service;
 });
 
 /// controllers:
@@ -40,18 +55,29 @@ chatApp.factory('commService', function(encService, ioService) {
 /// chat controller
 var ChatCtrl = function($scope, commService, $window) {
   var name = $window.prompt('enter name');
-  commService.login(name);
+  $scope.people = [];
+  $scope.messages = []
 
-  $scope.people = [name];
-  $scope.messages = ['chat -1','chat -2'];  
+  var listener = commService.login(name);
+  listener.$on('join', function(e, person) {
+    $scope.people.push(person.name);
+    // console.log('by controller:', person);
+    $scope.$digest();
+  });
 
-  console.log('chat controller init');
-  
+  listener.$on('msg', function(e, msg) {
+    $scope.messages.push(msg.text);
+    // console.log('by controller:', msg);
+    $scope.$digest();
+  });
+
   $scope.send = function(msg) {
+    commService.send({name:name, text:msg});
+
     $scope.messages.push(msg);
-    commService.send(msg);
     $scope.msg='';
   };
 
+  // console.log('chat controller init');
   return this;
 };
