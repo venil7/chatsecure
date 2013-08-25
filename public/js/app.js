@@ -54,21 +54,23 @@ chatApp.factory('commService', function(encService, ioService, $rootScope) {
 
 /// chat controller
 var ChatCtrl = function($scope, commService, $window) {
-  var name = $window.prompt('enter name');
+  // var name = $window.prompt('enter name');
+  var name = 'artem';
   $scope.people = [];
   $scope.messages = []
 
   var listener = commService.login(name);
+  
   listener.$on('join', function(e, person) {
-    $scope.people.push(person.name);
-    // console.log('by controller:', person);
-    $scope.$digest();
+    $scope.$apply(function() {
+      $scope.people.push(person.name);
+    });
   });
 
   listener.$on('msg', function(e, msg) {
-    $scope.messages.push(msg.text);
-    // console.log('by controller:', msg);
-    $scope.$digest();
+    $scope.$apply(function(){
+      $scope.messages.push(msg.text);
+    });
   });
 
   $scope.send = function(msg) {
