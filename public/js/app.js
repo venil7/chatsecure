@@ -1,6 +1,28 @@
-var chatApp = angular.module('chatsecure', []);
+var chatApp = angular.module('chatsecure', ['ngRoute']);
+
+/// configuration:
+chatApp.config(function($routeProvider) {
+  $routeProvider.
+  when('/chat', {
+    templateUrl : '/templates/chat.html',
+    controller : 'ChatCtrl'
+  }).
+  when('/login', {
+    templateUrl : '/templates/login.html',
+    controller : 'LoginCtrl'
+  }).
+  otherwise({
+    redirectTo : '/login'
+  });
+});
 
 /// services:
+
+/// user input
+chatApp.value('userInput', {
+  name : null,
+  room : null
+});
 
 /// encryption service
 chatApp.factory('encService', function() {
@@ -51,16 +73,13 @@ chatApp.factory('commService', function(encService, ioService, $rootScope) {
 });
 
 /// controllers:
-
 /// chat controller
-var ChatCtrl = function($scope, commService, $window) {
-  // var name = $window.prompt('enter name');
-  var name = 'artem';
+chatApp.controller('ChatCtrl', function($scope, commService, userInput) {  
   $scope.people = [];
   $scope.messages = []
 
-  var listener = commService.login(name);
-  
+  var listener = commService.login(userInput.name);
+
   listener.$on('join', function(e, person) {
     $scope.$apply(function() {
       $scope.people.push(person.name);
@@ -79,7 +98,15 @@ var ChatCtrl = function($scope, commService, $window) {
     $scope.messages.push(msg);
     $scope.msg='';
   };
+});
 
-  // console.log('chat controller init');
-  return this;
-};
+chatApp.controller('LoginCtrl', function($scope, $location, userInput) {  
+  console.log('login init');
+
+  $scope.submit = function(name, room) {
+    userInput.name = name;
+    userInput.room = room;
+    // console.log('userInput', userInput);
+    $location.path("/chat");
+  };
+});

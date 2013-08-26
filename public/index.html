@@ -8,30 +8,16 @@
 <body ng-app="chatsecure">
   
   <!-- content -->
-  <div class="container" ng-controller="ChatCtrl">
-    <div class="row">
-      <div class="col-md-2">
-        <ul class="list-group list-style people">
-          <li class="list-group-item" ng-repeat="(key, person) in people">{{person}}</li>
-        </ul>
-      </div>
-      <div class="col-md-10">
-        <ul class="list-group list-style chat">
-          <li class="list-group-item" ng-repeat="(key, msg) in messages">{{msg}}</li>
-        </ul>
-        <form ng-submit="send(msg)">
-          <input type="text" class="form-control" ng-model="msg" placeholder="Enter your message..">
-          <input type="submit" class="btn btn-default">
-        </form>
-      </div>
-    </div>
+  <div class="container" ng-view>
   </div>
   <!-- /content -->
   
   <!-- scripts -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script>
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.min.js"></script> -->
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0rc1/angular-route.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/app.js"></script>
   <!-- /scripts -->
