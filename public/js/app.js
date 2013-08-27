@@ -5,14 +5,26 @@ chatApp.config(function($routeProvider) {
   $routeProvider.
   when('/chat', {
     templateUrl : '/templates/chat.html',
-    controller : 'ChatCtrl'
+    controller : 'ChatCtrl',
+    restricted : true
   }).
   when('/login', {
     templateUrl : '/templates/login.html',
-    controller : 'LoginCtrl'
+    controller : 'LoginCtrl',
+    restricted : false
   }).
   otherwise({
     redirectTo : '/login'
+  });
+});
+
+/// bootstrap configuration
+
+chatApp.run(function ($rootScope, $location, userInput) {
+  $rootScope.$on('$routeChangeStart', function(e, next, current){
+    if (!next.restricted || !userInput.name || !userInput.room) {
+      $location.path('/login');
+    }
   });
 });
 
@@ -106,6 +118,8 @@ chatApp.controller('LoginCtrl', function($scope, $location, userInput) {
   $scope.submit = function(name, room) {
     userInput.name = name;
     userInput.room = room;
+
+    // validation goes here
     // console.log('userInput', userInput);
     $location.path("/chat");
   };
