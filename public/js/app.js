@@ -68,14 +68,19 @@ chatApp.factory('commService', function(encService, ioService, $rootScope) {
     localScope.$emit('msg', msg);
   });
 
+    socket.on('leave', function(id) {
+    localScope.$emit('leave', id);
+  });
+
   var _service = {
-    send: function(msg) {
-      // var msg = {name:name, text:text};
-      socket.emit('msg', msg);
-      // console.log('message sent:' + msg);
+    send: function(txt) {
+      socket.emit('msg', {txt:txt});
     },
-    login: function(name) {
-      socket.emit('join', {name:name});
+    login: function(name, room) {
+      socket.emit('join', {
+        name:name,
+        room:room
+      });
       // console.log('logged in as:' + name);
       return localScope;
     }
@@ -94,33 +99,42 @@ chatApp.controller('ChatCtrl', function($scope, commService, userInput) {
 
   listener.$on('join', function(e, person) {
     $scope.$apply(function() {
-      $scope.people.push(person.name);
+      $scope.people.push(person);
     });
   });
 
   listener.$on('msg', function(e, msg) {
     $scope.$apply(function(){
-      $scope.messages.push(msg.text);
+      $scope.messages.push(msg);
     });
   });
 
-  $scope.send = function(msg) {
-    commService.send({name:name, text:msg});
+  listener.$on('leave', function(e, id) {
+    $scope.$apply(function(){
+      $scope.people = $scope.people.filter(function(person) {
+        return person.id !== id;
+      });
+    })
+  });
 
-    $scope.messages.push(msg);
-    $scope.msg='';
+  $scope.send = function(txt) {
+    commService.send(txt);
+
+    $scope.messages.push({txt:txt});
+    $scope.txt='';
   };
 });
 
 chatApp.controller('LoginCtrl', function($scope, $location, userInput) {  
-  console.log('login init');
+  // console.log('login init');
 
   $scope.submit = function(name, room) {
-    userInput.name = name;
-    userInput.room = room;
+    
+    angular.extend(userInput, {
+      name:name,
+      room:room
+    });
 
-    // validation goes here
-    // console.log('userInput', userInput);
     $location.path("/chat");
   };
 });
