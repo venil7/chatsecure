@@ -1,16 +1,30 @@
 <div class="row">
   <div class="col-md-2">
+    <h5>People:</h5>
     <ul class="list-group list-style people">
-      <li class="list-group-item" ng-repeat="(key, person) in people" title="{{person.id}}">{{person.name}}</li>
+      <li class="list-group-item" ng-repeat="(key, person) in people" title="{{person.id}}">
+        <span class="glyphicon glyphicon-user">&nbsp;</span>
+        {{person.name}}
+      </li>
     </ul>
   </div>
   <div class="col-md-10">
     <ul class="list-group list-style chat">
-      <li class="list-group-item" ng-repeat="(key, msg) in messages">{{msg.txt}}</li>
+      <li class="list-group-item" ng-repeat="(key, msg) in messages">
+        <span class="glyphicon glyphicon-comment">&nbsp;</span>
+        <span class="badge pull-right">{{msg.user.name}}</span>
+        {{msg.txt}}
+      </li>
     </ul>
-    <form ng-submit="send(txt)">
-      <input type="text" class="form-control" ng-model="txt" placeholder="Enter your message..">
-      <input type="submit" class="btn btn-default">
+    <form ng-submit="send(txt)" class="form-inline">
+      <div class="row">
+        <div class="form-group col-xs-10">
+          <input type="text" class="form-control" ng-model="txt" placeholder="Enter your message..">
+        </div>
+        <div class="form-group col-sx-2">
+          <input type="submit" class="btn btn-primary">
+        </div>
+      <div>
     </form>
   </div>
 </div>

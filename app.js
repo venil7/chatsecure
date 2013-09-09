@@ -4,6 +4,7 @@
 
 var static = require('node-static'),
   socket_io = require('socket.io'),
+/*  _ = require('underscore');*/
   file = new(static.Server)('./public'),
   http = require('http'),
   server = http.createServer(function (request, response) {
@@ -11,9 +12,8 @@ var static = require('node-static'),
       file.serve(request, response);
     }).resume();
   }),
-  io = socket_io.listen(server),
-  // people = [];
-  rooms = [];
+  io = socket_io.listen(server, {log: false}),
+  people = [];
 
 server.listen(process.env.PORT || 3000);
 
@@ -23,28 +23,32 @@ io.sockets.on('connection', function(socket) {
     user.id = socket.id;
     socket.user = user;
     socket.join(user.room);
-    rooms[user.room] = rooms[user.room] || [];
-    var people = rooms[user.room];
     people.push(user);
-    // people.push(user);
     // letting others know user arrived
     socket.broadcast.in(user.room).emit('join', user);
     // letting user himself know about everyone in chat including himself
-    for(var i in people) {
-      socket.emit('join', people[i]);
+    var room_people = io.sockets.clients(user.room).map(function(s){
+      return s.user
+    });
+    for(var i in room_people) {
+      socket.emit('join', room_people[i]);
     }
   });
 
   socket.on('msg', function(msg){
-    socket.broadcast.in(socket.user.room || '').emit('msg', msg);
+    var room  = (socket.user && socket.user.room) || '';
+    msg.user = socket.user;
+    socket.broadcast.in(room).emit('msg', msg);
   });
 
   socket.on('leave', function () {
-    socket.broadcast.in(socket.user.room || '').emit('leave', socket.id);
+    var room  = (socket.user && socket.user.room) || '';
+    socket.broadcast.in(room).emit('leave', socket.id);
     socket.leave(room);
   });
 
   socket.on('disconnect', function () {
-    socket.broadcast.in(socket.user.room || '').emit('leave', socket.id);
+    var room  = (socket.user && socket.user.room) || '';
+    socket.broadcast.in(room).emit('leave', socket.id);
   });
 });

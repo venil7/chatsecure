@@ -7,6 +7,20 @@
 </head>
 <body ng-app="chatsecure">
   
+  <nav class="navbar navbar-default" role="navigation" ng-controller="NavCtrl">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Talk#@!</a>
+    </div>
+    <p class="navbar-text pull-right" ng-show="!!userInput.room">
+      <span class="glyphicon glyphicon-log-out"></span>
+      <a href="#" ng-click="leave()">Sign out</a>
+    </p>  
+    <p class="navbar-text pull-right">
+      <span class="glyphicon glyphicon-user"></span>
+      {{credential}}
+    </p>  
+  </nav>
+
   <!-- content -->
   <div class="container" ng-view>
   </div>

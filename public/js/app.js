@@ -95,7 +95,7 @@ chatApp.controller('ChatCtrl', function($scope, commService, userInput) {
   $scope.people = [];
   $scope.messages = []
 
-  var listener = commService.login(userInput.name);
+  var listener = commService.login(userInput.name, userInput.room);
 
   listener.$on('join', function(e, person) {
     $scope.$apply(function() {
@@ -114,19 +114,23 @@ chatApp.controller('ChatCtrl', function($scope, commService, userInput) {
       $scope.people = $scope.people.filter(function(person) {
         return person.id !== id;
       });
-    })
+    });
   });
 
   $scope.send = function(txt) {
     commService.send(txt);
-
-    $scope.messages.push({txt:txt});
-    $scope.txt='';
+    var msg = { txt:txt, user:userInput };
+    console.log(msg);
+    $scope.messages.push(msg);
+    $scope.txt = '';
   };
 });
 
 chatApp.controller('LoginCtrl', function($scope, $location, userInput) {  
   // console.log('login init');
+
+  $scope.name = userInput.name;
+  $scope.room = userInput.room;
 
   $scope.submit = function(name, room) {
     
@@ -137,4 +141,21 @@ chatApp.controller('LoginCtrl', function($scope, $location, userInput) {
 
     $location.path("/chat");
   };
+});
+
+chatApp.controller('NavCtrl', function($scope, $location, $interpolate, userInput) {  
+  $scope.userInput = userInput;
+  $scope.leave = function () {
+    userInput.name = userInput.room = null;
+    $location.path("/login");
+  };
+
+  $scope.$on('$locationChangeSuccess', function () {
+      if (userInput.name && userInput.room) {
+        var res = $interpolate("{{name}}@{{room}}");
+        $scope.credential = res(userInput);
+      } else {
+        $scope.credential = "Signed out";
+      }   
+  });
 });
